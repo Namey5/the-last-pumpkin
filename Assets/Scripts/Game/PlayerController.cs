@@ -29,29 +29,31 @@ public class PlayerController : MonoBehaviour
 		Quaternion _CameraDir = Quaternion.AngleAxis (m_MainCamera.transform.eulerAngles.y, Vector3.up);
 
 		Quaternion _TargetRotation = transform.rotation;
-		if (Input.GetButton ("Fire2"))
+		Vector3 _LookDirection = new Vector3 (Input.GetAxis ("AimX"), 0f, Input.GetAxis ("AimY"));
+		_LookDirection = _CameraDir * _LookDirection;
+
+		bool _AimingWithController = _LookDirection.sqrMagnitude >= 0.1f;
+		if (_AimingWithController || Input.GetButton ("Fire2"))
 		{
 			m_Velocity.x = 0f;
 			m_Velocity.z = 0f;
 
 			m_Animator.SetFloat ("Speed", 0f);
+			m_Animator.SetBool ("IsAiming", true);
 
-			Vector3 _Direction = new Vector3 (Input.GetAxis ("AimX"), 0f, Input.GetAxis ("AimY"));
-			_Direction = _CameraDir * _Direction;
-
-			if (_Direction.sqrMagnitude < 0.1f)
+			if (!_AimingWithController)
 			{
 				Ray _MouseRay = m_MainCamera.ScreenPointToRay (Input.mousePosition);
 				Plane _Plane = new Plane (Vector3.up, transform.position);
 				if (_Plane.Raycast (_MouseRay, out float _PlaneDist))
 				{
 					Vector3 _Hit = _MouseRay.GetPoint (_PlaneDist);
-					_Direction = _Hit - transform.position;
+					_LookDirection = _Hit - transform.position;
 				}
 			}
 
-			_Direction.Normalize ();
-			_TargetRotation = Quaternion.LookRotation (_Direction);
+			_LookDirection.Normalize ();
+			_TargetRotation = Quaternion.LookRotation (_LookDirection);
 		}
 		else
 		{
@@ -76,6 +78,7 @@ public class PlayerController : MonoBehaviour
 			}
 
 			m_Animator.SetFloat ("Speed", Mathf.Clamp01 (_Movement.magnitude / m_MovementSpeed));
+			m_Animator.SetBool ("IsAiming", false);
 		}
 
 		transform.rotation = Quaternion.Slerp (transform.rotation, _TargetRotation, 1f - Mathf.Exp (-m_RotationSpeed * Time.deltaTime));
