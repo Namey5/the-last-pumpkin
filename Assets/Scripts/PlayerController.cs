@@ -9,8 +9,8 @@ public class PlayerController : MonoBehaviour
 	[SerializeField] private Animator m_Animator;
 
 	[Header ("Movement")]
-	[SerializeField] private float m_MovementSpeed = 5f;
-	[SerializeField] private float m_JumpForce = 6f;
+	[SerializeField] private float m_MovementSpeed = 3f;
+	[SerializeField] private float m_JumpForce = 3f;
 	[SerializeField] private float m_RotationSpeed = 10f;
 
 	private Camera m_MainCamera;
