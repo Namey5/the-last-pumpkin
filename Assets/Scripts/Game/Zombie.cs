@@ -1,12 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class Zombie : MonoBehaviour
 {
 	[Header ("Components")]
-	[SerializeField] private CharacterController m_CharacterController;
+	[SerializeField] private NavMeshAgent m_NavMeshAgent;
 	[SerializeField] private Animator m_Animator;
+	[SerializeField] private Rigidbody m_RagdollRoot;
 
 	private Rigidbody[] m_RagdollBodies;
 
@@ -14,6 +16,19 @@ public class Zombie : MonoBehaviour
 	{
 		m_RagdollBodies = GetComponentsInChildren<Rigidbody> ();
 		SetRagdoll (false);
+	}
+
+	private void Update ()
+	{
+		if (Input.GetKeyDown (KeyCode.J))
+		{
+			Kill (Vector3.forward * 5000f);
+		}
+
+		if (Input.GetKeyDown (KeyCode.K))
+		{
+			m_NavMeshAgent.destination = transform.position + (new Vector3 (Random.value, 0f, Random.value) * 2f - Vector3.one) * 4f;
+		}
 	}
 
 	private void SetRagdoll (bool a_RagdollEnabled)
@@ -25,12 +40,11 @@ public class Zombie : MonoBehaviour
 		}
 	}
 
-	private void Update ()
+	public void Kill (Vector3 a_Force = default)
 	{
-		if (Input.GetKeyDown (KeyCode.J))
-		{
-			m_CharacterController.enabled = false;
-			SetRagdoll (true);
-		}
+		m_Animator.transform.SetParent (null, true);
+		SetRagdoll (true);
+		m_RagdollRoot.AddForce (a_Force);
+		Destroy (gameObject);
 	}
 }
