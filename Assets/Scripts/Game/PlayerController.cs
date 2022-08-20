@@ -16,7 +16,11 @@ public class PlayerController : MonoBehaviour
 	private Camera m_MainCamera;
 
 	private Vector3 m_Velocity;
+	private Quaternion m_Rotation;
 	private CollisionFlags m_LastCollision;
+
+	public Vector2 Velocity => m_Velocity;
+	public Quaternion Rotation => m_Rotation;
 
 	private void Start ()
 	{
@@ -28,7 +32,6 @@ public class PlayerController : MonoBehaviour
 		// Movement
 		Quaternion _CameraDir = Quaternion.AngleAxis (m_MainCamera.transform.eulerAngles.y, Vector3.up);
 
-		Quaternion _TargetRotation = transform.rotation;
 		Vector3 _LookDirection = new Vector3 (Input.GetAxis ("AimX"), 0f, Input.GetAxis ("AimY"));
 		_LookDirection = _CameraDir * _LookDirection;
 
@@ -53,7 +56,7 @@ public class PlayerController : MonoBehaviour
 			}
 
 			_LookDirection.Normalize ();
-			_TargetRotation = Quaternion.LookRotation (_LookDirection);
+			m_Rotation = Quaternion.LookRotation (_LookDirection);
 		}
 		else
 		{
@@ -66,7 +69,7 @@ public class PlayerController : MonoBehaviour
 
 			if (_Movement.sqrMagnitude > 0.01f)
 			{
-				_TargetRotation = Quaternion.LookRotation (_Movement);
+				m_Rotation = Quaternion.LookRotation (_Movement);
 			}
 
 			if (m_CharacterController.isGrounded)
@@ -81,7 +84,8 @@ public class PlayerController : MonoBehaviour
 			m_Animator.SetBool ("IsAiming", false);
 		}
 
-		transform.rotation = Quaternion.Slerp (transform.rotation, _TargetRotation, 1f - Mathf.Exp (-m_RotationSpeed * Time.deltaTime));
+		m_Rotation = Quaternion.Slerp (m_Rotation, m_Rotation, 1f - Mathf.Exp (-m_RotationSpeed * Time.deltaTime));
+		transform.rotation = m_Rotation;
 
 		m_Velocity += Physics.gravity * Time.deltaTime;
 
