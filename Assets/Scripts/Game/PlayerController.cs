@@ -63,7 +63,7 @@ public class PlayerController : MonoBehaviour
 				if (_Plane.Raycast (_MouseRay, out float _PlaneDist))
 				{
 					Vector3 _Hit = _MouseRay.GetPoint (_PlaneDist);
-					_LookDirection = (_Hit - transform.position) * 0.5f;
+					_LookDirection = (_Hit - transform.position) / m_MaxCrosshairDistance;
 				}
 			}
 
