@@ -5,7 +5,6 @@ using UnityEngine;
 [RequireComponent (typeof (Collider))]
 public class ItemPickup : MonoBehaviour
 {
-	[SerializeField] private ItemDefinition m_ItemDefinition;
 	[SerializeField] private float m_BobSpeed = 1f;
 	[SerializeField] private float m_RotateSpeed = 90f;
 
@@ -26,7 +25,7 @@ public class ItemPickup : MonoBehaviour
 	{
 		if (a_Other.TryGetComponent (out PlayerController _Player))
 		{
-			//_Player.GiveItem (m_ItemDefinition);
+			_Player.GiveAmmo (Random.Range (2, 5));
 			Destroy (gameObject);
 		}
 	}

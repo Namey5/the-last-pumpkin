@@ -50,6 +50,7 @@ MonoBehaviour:
   m_NavMeshAgent: {fileID: 947307843}
   m_Animator: {fileID: 2926763383638754151}
   m_RagdollRoot: {fileID: 4349352913464249490}
+  m_AmmoDrop: {fileID: 4459538420425234506, guid: bb89612dd06dad044904bee80d50f796, type: 3}
   m_ActivityDelay: 1
   m_PlayerTargetDistance: 3
   m_PlayerAttackDistance: 1

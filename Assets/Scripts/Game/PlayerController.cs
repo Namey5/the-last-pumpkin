@@ -57,6 +57,7 @@ public class PlayerController : MonoBehaviour
 	public bool IsGrounded => m_CharacterController.isGrounded;
 
 	public bool IsAiming => m_IsAiming;
+	public bool IsAlive => m_Health > 0;
 
 	private void Start ()
 	{
@@ -65,6 +66,11 @@ public class PlayerController : MonoBehaviour
 
 	private void Update ()
 	{
+		if (!IsAlive)
+		{
+			return;
+		}
+
 		Quaternion _CameraDir = Quaternion.AngleAxis (GameManager.Instance.MainCamera.transform.eulerAngles.y, Vector3.up);
 
 		Vector3 _LookDirection = new Vector3 (Input.GetAxis ("AimX"), 0f, Input.GetAxis ("AimY"));
@@ -206,5 +212,20 @@ public class PlayerController : MonoBehaviour
 	{
 		m_Health -= a_Damage;
 		GameManager.Instance.HUD.UpdatePlayerHealth (Mathf.Max (0, m_Health));
+
+		if (m_Health <= 0)
+		{
+			//m_Animator.SetTrigger ("Dead");
+			m_Animator.enabled = false;
+			m_Animator.transform.SetParent (null);
+			GameManager.Instance.PlayerDied ();
+			gameObject.SetActive (false);
+		}
+	}
+
+	public void GiveAmmo (int a_Ammo)
+	{
+		m_Ammo += a_Ammo;
+		GameManager.Instance.HUD.UpdateAmmoCount (m_Ammo);
 	}
 }

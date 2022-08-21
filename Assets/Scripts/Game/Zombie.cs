@@ -9,6 +9,7 @@ public class Zombie : MonoBehaviour
 	[SerializeField] private NavMeshAgent m_NavMeshAgent;
 	[SerializeField] private Animator m_Animator;
 	[SerializeField] private Rigidbody m_RagdollRoot;
+	[SerializeField] private ItemPickup m_AmmoDrop;
 
 	[Header ("AI")]
 	[SerializeField] private float m_ActivityDelay = 1f;
@@ -122,6 +123,12 @@ public class Zombie : MonoBehaviour
 		m_Animator.transform.SetParent (null, true);
 		SetRagdoll (true);
 		m_RagdollRoot.AddForce (a_Force * 100f);
+
+		if (Random.value > 0.6f)
+		{
+			Instantiate (m_AmmoDrop, transform.position, Quaternion.identity);
+		}
+
 		Destroy (gameObject);
 	}
 

@@ -18,6 +18,7 @@ public class GameManager : MonoBehaviour
 	[SerializeField] private GameObject m_Pumpkin;
 
 	[Header ("Game")]
+	[SerializeField] private int m_ZombieKillsToWin = 50;
 	[SerializeField] private float m_MinPumpkinSize = 1f;
 	[SerializeField] private float m_MaxPumpkinSize = 50f;
 	[SerializeField] private float m_ZombieSpawnRate = 5f;
@@ -73,13 +74,22 @@ public class GameManager : MonoBehaviour
 		m_ZombieKills++;
 		m_HUD.UpdateKillCount (m_ZombieKills);
 
-		m_Pumpkin.transform.localScale = Vector3.one * Mathf.Lerp (m_MinPumpkinSize, m_MaxPumpkinSize, Mathf.Clamp01 (m_ZombieKills / 100f));
+		m_Pumpkin.transform.localScale = Vector3.one * Mathf.Lerp (m_MinPumpkinSize, m_MaxPumpkinSize, Mathf.Clamp01 (m_ZombieKills / (float)m_ZombieKillsToWin));
+		if (m_ZombieKills >= m_ZombieKillsToWin)
+		{
+			Won ();
+		}
 	}
 
 	public void FarmAttacked (int a_Damage)
 	{
 		m_FarmDefences -= a_Damage;
 		m_HUD.UpdateFarmDefences (Mathf.Max (0, m_FarmDefences));
+
+		if (m_FarmDefences <= 0)
+		{
+			DefencesDestroyed ();
+		}
 	}
 
 	public void ShowPauseMenu ()
@@ -99,5 +109,34 @@ public class GameManager : MonoBehaviour
 	public void QuitToMenu ()
 	{
 		SceneManager.LoadScene ("menu");
+	}
+
+	public void PlayerDied ()
+	{
+		EndMenu.EndType = EndType.Died;
+		EndMenu.ZombiesKilled = m_ZombieKills;
+
+		StartCoroutine (PlayerDied_Coroutine ());
+	}
+
+	private IEnumerator PlayerDied_Coroutine ()
+	{
+		yield return new WaitForSecondsRealtime (2f);
+		SceneManager.LoadScene ("end");
+	}
+
+	public void DefencesDestroyed ()
+	{
+		EndMenu.EndType = EndType.Lost;
+		EndMenu.ZombiesKilled = m_ZombieKills;
+
+		SceneManager.LoadScene ("end");
+	}
+
+	public void Won ()
+	{
+		EndMenu.EndType = EndType.Won;
+		EndMenu.ZombiesKilled = m_ZombieKills;
+		SceneManager.LoadScene ("end");
 	}
 }
