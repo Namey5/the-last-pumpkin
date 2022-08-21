@@ -23,7 +23,7 @@ public class Zombie : MonoBehaviour
 
 	private void Update ()
 	{
-		if (Input.GetKeyDown (KeyCode.K))
+		if (Time.time % 3f < Time.deltaTime)
 		{
 			m_NavMeshAgent.destination = transform.position + (new Vector3 (Random.value, 0f, Random.value) * 2f - Vector3.one) * 4f;
 		}

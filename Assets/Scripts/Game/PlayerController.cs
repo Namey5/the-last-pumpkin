@@ -9,15 +9,18 @@ public class PlayerController : MonoBehaviour
 	[SerializeField] private CharacterController m_CharacterController;
 	[SerializeField] private Animator m_Animator;
 
+	[Header ("HUD")]
+	[SerializeField] private HUD m_HUD;
+	[SerializeField] private Image m_Crosshair;
+	[SerializeField] private float m_MaxCrosshairDistance = 2f;
+
 	[Header ("Movement")]
 	[SerializeField] private float m_MovementSpeed = 3f;
 	[SerializeField] private float m_JumpForce = 3f;
 	[SerializeField] private float m_RotationSpeed = 10f;
 
-	[Header ("HUD")]
-	[SerializeField] private HUD m_HUD;
-	[SerializeField] private Image m_Crosshair;
-	[SerializeField] private float m_MaxCrosshairDistance = 2f;
+	[Header ("Combat")]
+	[SerializeField] private float m_MeleeDistance = 1f;
 
 	private Camera m_MainCamera;
 
@@ -42,6 +45,8 @@ public class PlayerController : MonoBehaviour
 		Vector3 _LookDirection = new Vector3 (Input.GetAxis ("AimX"), 0f, Input.GetAxis ("AimY"));
 		_LookDirection = _CameraDir * _LookDirection;
 
+		float _CrosshairDist = 0f;
+
 		bool _AimingWithController = _LookDirection.sqrMagnitude >= 0.1f;
 		if (_AimingWithController || Input.GetButton ("Fire2"))
 		{
@@ -62,9 +67,7 @@ public class PlayerController : MonoBehaviour
 				}
 			}
 
-			float _CrosshairDist = Mathf.Clamp01 (_LookDirection.magnitude);
-			m_Crosshair.transform.localPosition = new Vector3 (0f, _CrosshairDist * m_MaxCrosshairDistance, 0f);
-			m_Crosshair.color = new Color (1f, 1f, 1f, Mathf.Clamp01 (_CrosshairDist * 2f - 0.5f));
+			_CrosshairDist = Mathf.Clamp01 (_LookDirection.magnitude);
 
 			_LookDirection.Normalize ();
 			m_Rotation = Quaternion.LookRotation (_LookDirection);
@@ -99,13 +102,14 @@ public class PlayerController : MonoBehaviour
 			m_Animator.SetFloat ("Speed", Mathf.Clamp01 (_Movement.magnitude / m_MovementSpeed));
 			m_Animator.SetBool ("IsAiming", false);
 
-			m_Crosshair.color = new Color (1f, 1f, 1f, 0f);
-
 			if (Input.GetButtonDown ("Fire1"))
 			{
 				MeleeAttack ();
 			}
 		}
+
+		m_Crosshair.transform.localPosition = new Vector3 (0f, _CrosshairDist * m_MaxCrosshairDistance, 0f);
+		m_Crosshair.color = new Color (1f, 1f, 1f, Mathf.Clamp01 (_CrosshairDist * 2f - 0.5f));
 
 		m_Rotation = Quaternion.Slerp (m_Rotation, m_Rotation, 1f - Mathf.Exp (-m_RotationSpeed * Time.deltaTime));
 		transform.rotation = m_Rotation;
@@ -141,5 +145,23 @@ public class PlayerController : MonoBehaviour
 	{
 		m_Animator.ResetTrigger ("MeleeAttack");
 		m_Animator.SetTrigger ("MeleeAttack");
+
+		Vector3 _AimDir = m_Rotation * Vector3.forward;
+		Collider[] _HitColliders = Physics.OverlapSphere (transform.position + _AimDir * m_MeleeDistance * 0.5f, m_MeleeDistance * 0.5f);
+		if (_HitColliders != null && _HitColliders.Length > 0)
+		{
+			foreach (Collider _Hit in _HitColliders)
+			{
+				Zombie _Zombie = _Hit.GetComponent<Zombie> ();
+				if (_Zombie != null)
+				{
+					if (!_Zombie.Damage (_AimDir, 50))
+					{
+						m_KillCount++;
+						m_HUD.UpdateKillCount (m_KillCount);
+					}
+				}
+			}
+		}
 	}
 }
