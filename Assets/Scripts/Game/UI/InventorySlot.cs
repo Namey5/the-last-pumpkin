@@ -22,4 +22,14 @@ public class InventorySlot : MonoBehaviour
 	{
 		m_SlotNumberText.text = (m_SlotID + 1).ToString ();
 	}
+
+	public void SetActive ()
+	{
+		m_SlotBackground.sprite = m_SelectedBackground;
+	}
+
+	public void SetInactive ()
+	{
+		m_SlotBackground.sprite = m_NormalBackground;
+	}
 }

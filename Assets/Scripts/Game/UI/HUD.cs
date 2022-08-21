@@ -21,6 +21,7 @@ public class HUD : MonoBehaviour
 		m_AmmoText.text = "0";
 		m_HealthBar.rectTransform.anchorMax = Vector2.one;
 		m_DefencesBar.rectTransform.anchorMax = Vector2.one;
+		m_InventorySlots[0].SetActive ();
 	}
 
 	public void UpdateKillCount (int a_Kills)
