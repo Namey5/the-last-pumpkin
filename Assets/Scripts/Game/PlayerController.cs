@@ -25,6 +25,8 @@ public class PlayerController : MonoBehaviour
 	private Quaternion m_Rotation;
 	private CollisionFlags m_LastCollision;
 
+	private int m_KillCount = 0;
+
 	public Vector2 Velocity => m_Velocity;
 	public Quaternion Rotation => m_Rotation;
 
@@ -66,6 +68,11 @@ public class PlayerController : MonoBehaviour
 
 			_LookDirection.Normalize ();
 			m_Rotation = Quaternion.LookRotation (_LookDirection);
+
+			if (Input.GetButtonDown ("Fire1"))
+			{
+				FireWeapon ();
+			}
 		}
 		else
 		{
@@ -93,6 +100,11 @@ public class PlayerController : MonoBehaviour
 			m_Animator.SetBool ("IsAiming", false);
 
 			m_Crosshair.color = new Color (1f, 1f, 1f, 0f);
+
+			if (Input.GetButtonDown ("Fire1"))
+			{
+				MeleeAttack ();
+			}
 		}
 
 		m_Rotation = Quaternion.Slerp (m_Rotation, m_Rotation, 1f - Mathf.Exp (-m_RotationSpeed * Time.deltaTime));
@@ -103,5 +115,31 @@ public class PlayerController : MonoBehaviour
 		m_LastCollision = m_CharacterController.Move (m_Velocity * Time.deltaTime);
 
 		m_Animator.SetBool ("IsGrounded", m_CharacterController.isGrounded);
+	}
+
+	private void FireWeapon ()
+	{
+		m_Animator.ResetTrigger ("Shoot");
+		m_Animator.SetTrigger ("Shoot");
+
+		Vector3 _AimDir = m_Rotation * Vector3.forward;
+		if (Physics.Raycast (transform.position, _AimDir, out RaycastHit _Hit, 100f))
+		{
+			Zombie _Zombie = _Hit.collider.GetComponent<Zombie> ();
+			if (_Zombie != null)
+			{
+				if (!_Zombie.Damage (_AimDir, 50))
+				{
+					m_KillCount++;
+					m_HUD.UpdateKillCount (m_KillCount);
+				}
+			}
+		}
+	}
+
+	private void MeleeAttack ()
+	{
+		m_Animator.ResetTrigger ("MeleeAttack");
+		m_Animator.SetTrigger ("MeleeAttack");
 	}
 }
