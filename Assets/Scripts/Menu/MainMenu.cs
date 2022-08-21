@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
+using UnityEngine.Audio;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -9,6 +9,8 @@ public class MainMenu : MonoBehaviour
 {
 	[SerializeField] private Canvas m_Canvas;
 	[SerializeField] private Image m_Fader;
+	[SerializeField] private AudioMixerSnapshot m_DefaultSnapshot;
+	[SerializeField] private AudioMixerSnapshot m_NoMusicSnapshot;
 	[SerializeField] private string m_GameSceneName = "game";
 
 	private void Start ()
@@ -25,6 +27,8 @@ public class MainMenu : MonoBehaviour
 	{
 		const float FADE_DURATION = 1f;
 
+		m_NoMusicSnapshot.TransitionTo (FADE_DURATION);
+
 		m_Fader.enabled = true;
 
 		// Graphic.CrossFadeAlpha() doesn't seem to work, so doing this manually
@@ -40,6 +44,8 @@ public class MainMenu : MonoBehaviour
 		yield return new WaitForSecondsRealtime (0.5f);
 
 		yield return SceneManager.LoadSceneAsync (m_GameSceneName);
+
+		m_DefaultSnapshot.TransitionTo (0f);
 	}
 
 	public void ShowSettings ()

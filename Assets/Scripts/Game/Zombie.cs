@@ -56,6 +56,8 @@ public class Zombie : MonoBehaviour
 
 	public void Kill (Vector3 a_Force = default)
 	{
+		GameManager.Instance.ZombieKilled ();
+
 		m_Animator.transform.SetParent (null, true);
 		SetRagdoll (true);
 		m_RagdollRoot.AddForce (a_Force * 100f);

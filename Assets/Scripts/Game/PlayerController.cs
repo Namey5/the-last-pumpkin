@@ -9,8 +9,7 @@ public class PlayerController : MonoBehaviour
 	[SerializeField] private CharacterController m_CharacterController;
 	[SerializeField] private Animator m_Animator;
 
-	[Header ("HUD")]
-	[SerializeField] private HUD m_HUD;
+	[Header ("UI")]
 	[SerializeField] private Image m_Crosshair;
 	[SerializeField] private float m_MaxCrosshairDistance = 2f;
 
@@ -19,28 +18,30 @@ public class PlayerController : MonoBehaviour
 	[SerializeField] private float m_JumpForce = 3f;
 	[SerializeField] private float m_RotationSpeed = 10f;
 
-	[Header ("Combat")]
-	[SerializeField] private float m_MeleeDistance = 1f;
+	[Header ("Equipment")]
+	[SerializeField] private GameObject m_EquipRoot;
+	[SerializeField] private InventoryItem[] m_InventoryItems;
 
-	private Camera m_MainCamera;
+	private int m_Health = 100;
 
 	private Vector3 m_Velocity;
 	private Quaternion m_Rotation;
 	private CollisionFlags m_LastCollision;
 
-	private int m_KillCount = 0;
+	private bool m_IsAiming = false;
 
-	public Vector2 Velocity => m_Velocity;
+	public CharacterController CharacterController => m_CharacterController;
+	public Animator Animator => m_Animator;
+
+	public Vector3 Velocity => m_Velocity;
 	public Quaternion Rotation => m_Rotation;
+	public bool IsGrounded => m_CharacterController.isGrounded;
 
-	private void Start ()
-	{
-		m_MainCamera = Camera.main;
-	}
+	public bool IsAiming => m_IsAiming;
 
 	private void Update ()
 	{
-		Quaternion _CameraDir = Quaternion.AngleAxis (m_MainCamera.transform.eulerAngles.y, Vector3.up);
+		Quaternion _CameraDir = Quaternion.AngleAxis (GameManager.Instance.MainCamera.transform.eulerAngles.y, Vector3.up);
 
 		Vector3 _LookDirection = new Vector3 (Input.GetAxis ("AimX"), 0f, Input.GetAxis ("AimY"));
 		_LookDirection = _CameraDir * _LookDirection;
@@ -48,17 +49,17 @@ public class PlayerController : MonoBehaviour
 		float _CrosshairDist = 0f;
 
 		bool _AimingWithController = _LookDirection.sqrMagnitude >= 0.1f;
-		if (_AimingWithController || Input.GetButton ("Fire2"))
+		m_IsAiming = _AimingWithController || Input.GetButton ("Fire2");
+		if (m_IsAiming)
 		{
 			m_Velocity.x = 0f;
 			m_Velocity.z = 0f;
 
 			m_Animator.SetFloat ("Speed", 0f);
-			m_Animator.SetBool ("IsAiming", true);
 
 			if (!_AimingWithController)
 			{
-				Ray _MouseRay = m_MainCamera.ScreenPointToRay (Input.mousePosition);
+				Ray _MouseRay = GameManager.Instance.MainCamera.ScreenPointToRay (Input.mousePosition);
 				Plane _Plane = new Plane (Vector3.up, transform.position);
 				if (_Plane.Raycast (_MouseRay, out float _PlaneDist))
 				{
@@ -71,11 +72,6 @@ public class PlayerController : MonoBehaviour
 
 			_LookDirection.Normalize ();
 			m_Rotation = Quaternion.LookRotation (_LookDirection);
-
-			if (Input.GetButtonDown ("Fire1"))
-			{
-				FireWeapon ();
-			}
 		}
 		else
 		{
@@ -100,12 +96,6 @@ public class PlayerController : MonoBehaviour
 			}
 
 			m_Animator.SetFloat ("Speed", Mathf.Clamp01 (_Movement.magnitude / m_MovementSpeed));
-			m_Animator.SetBool ("IsAiming", false);
-
-			if (Input.GetButtonDown ("Fire1"))
-			{
-				MeleeAttack ();
-			}
 		}
 
 		m_Crosshair.transform.localPosition = new Vector3 (0f, _CrosshairDist * m_MaxCrosshairDistance, 0f);
@@ -119,9 +109,15 @@ public class PlayerController : MonoBehaviour
 		m_LastCollision = m_CharacterController.Move (m_Velocity * Time.deltaTime);
 
 		m_Animator.SetBool ("IsGrounded", m_CharacterController.isGrounded);
+		m_Animator.SetBool ("IsAiming", IsAiming);
+
+		if (Input.GetButton ("Fire1") || Input.GetAxis ("Fire1") > 0.4f)
+		{
+			UseItem ();
+		}
 	}
 
-	private void FireWeapon ()
+	private void UseItem ()
 	{
 		m_Animator.ResetTrigger ("Shoot");
 		m_Animator.SetTrigger ("Shoot");
@@ -129,39 +125,15 @@ public class PlayerController : MonoBehaviour
 		Vector3 _AimDir = m_Rotation * Vector3.forward;
 		if (Physics.Raycast (transform.position, _AimDir, out RaycastHit _Hit, 100f))
 		{
-			Zombie _Zombie = _Hit.collider.GetComponent<Zombie> ();
-			if (_Zombie != null)
+			if (_Hit.collider.TryGetComponent (out Zombie _Zombie))
 			{
-				if (!_Zombie.Damage (_AimDir, 50))
-				{
-					m_KillCount++;
-					m_HUD.UpdateKillCount (m_KillCount);
-				}
+				_Zombie.Damage (_AimDir, 50);
 			}
 		}
 	}
 
-	private void MeleeAttack ()
+	public void GiveItem (ItemDefinition a_Item)
 	{
-		m_Animator.ResetTrigger ("MeleeAttack");
-		m_Animator.SetTrigger ("MeleeAttack");
 
-		Vector3 _AimDir = m_Rotation * Vector3.forward;
-		Collider[] _HitColliders = Physics.OverlapSphere (transform.position + _AimDir * m_MeleeDistance * 0.5f, m_MeleeDistance * 0.5f);
-		if (_HitColliders != null && _HitColliders.Length > 0)
-		{
-			foreach (Collider _Hit in _HitColliders)
-			{
-				Zombie _Zombie = _Hit.GetComponent<Zombie> ();
-				if (_Zombie != null)
-				{
-					if (!_Zombie.Damage (_AimDir, 50))
-					{
-						m_KillCount++;
-						m_HUD.UpdateKillCount (m_KillCount);
-					}
-				}
-			}
-		}
 	}
 }

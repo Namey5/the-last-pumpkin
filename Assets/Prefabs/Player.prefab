@@ -260,7 +260,7 @@ CharacterController:
   m_Height: 1
   m_Radius: 0.25
   m_SlopeLimit: 45
-  m_StepOffset: 0.3
+  m_StepOffset: 0.1
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0, z: 0}
@@ -278,12 +278,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_CharacterController: {fileID: 2532278563498360926}
   m_Animator: {fileID: 2532278562646740444}
+  m_Crosshair: {fileID: 825561400}
+  m_MaxCrosshairDistance: 2
   m_MovementSpeed: 3
   m_JumpForce: 3
   m_RotationSpeed: 10
-  m_HUD: {fileID: 0}
-  m_Crosshair: {fileID: 825561400}
-  m_MaxCrosshairDistance: 2
+  m_EquipRoot: {fileID: 0}
+  m_InventoryItems: []
 --- !u!1001 &694146051242115758
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -350,6 +351,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: b643e9b0c6cc8e8419efbcdf0f31dbfa, type: 3}
       propertyPath: m_Name
       value: toolShovel
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: b643e9b0c6cc8e8419efbcdf0f31dbfa, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b643e9b0c6cc8e8419efbcdf0f31dbfa, type: 3}
@@ -585,7 +590,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: b9f911e07aac56940af8493f448469e4, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b9f911e07aac56940af8493f448469e4, type: 3}
