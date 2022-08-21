@@ -43,7 +43,7 @@ public class PlayerController : MonoBehaviour
 	private float m_LastStep = float.MinValue;
 
 	private int m_Health = 100;
-	private int m_Ammo = 50;
+	private int m_Ammo = 20;
 
 	private bool m_IsAiming = false;
 	private float m_LastShoot = float.MinValue;
@@ -57,6 +57,11 @@ public class PlayerController : MonoBehaviour
 	public bool IsGrounded => m_CharacterController.isGrounded;
 
 	public bool IsAiming => m_IsAiming;
+
+	private void Start ()
+	{
+		GameManager.Instance.HUD.UpdateAmmoCount (m_Ammo);
+	}
 
 	private void Update ()
 	{
@@ -166,8 +171,10 @@ public class PlayerController : MonoBehaviour
 				}
 			}
 
-			m_LastShoot = Time.time;
 			m_Ammo--;
+			GameManager.Instance.HUD.UpdateAmmoCount (m_Ammo);
+
+			m_LastShoot = Time.time;
 		}
 		else
 		{

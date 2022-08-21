@@ -17,7 +17,7 @@ public class HUD : MonoBehaviour
 
 	private int m_SelectedSlot;
 
-	private void Start ()
+	private void Awake ()
 	{
 		UpdateKillCount (0);
 		UpdateAmmoCount (0);

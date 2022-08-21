@@ -50,11 +50,15 @@ MonoBehaviour:
   m_NavMeshAgent: {fileID: 947307843}
   m_Animator: {fileID: 2926763383638754151}
   m_RagdollRoot: {fileID: 4349352913464249490}
-  m_ActivityDelay: 3
+  m_ActivityDelay: 1
   m_PlayerTargetDistance: 3
   m_PlayerAttackDistance: 1
   m_MinSpeed: 1
   m_MaxSpeed: 2
+  m_MinPlayerDamage: 1
+  m_MaxPlayerDamage: 6
+  m_MinFarmDamage: 1
+  m_MaxFarmDamage: 3
 --- !u!195 &947307843
 NavMeshAgent:
   m_ObjectHideFlags: 0
