@@ -50,6 +50,11 @@ MonoBehaviour:
   m_NavMeshAgent: {fileID: 947307843}
   m_Animator: {fileID: 2926763383638754151}
   m_RagdollRoot: {fileID: 4349352913464249490}
+  m_ActivityDelay: 3
+  m_PlayerTargetDistance: 3
+  m_PlayerAttackDistance: 1
+  m_MinSpeed: 1
+  m_MaxSpeed: 2
 --- !u!195 &947307843
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -351,7 +356,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: e4299bf26a09e9049839e1a1b75e562c, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.58
+      value: -0.5
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: e4299bf26a09e9049839e1a1b75e562c, type: 3}
       propertyPath: m_LocalPosition.z

@@ -21,14 +21,33 @@ public class PlayerController : MonoBehaviour
 	[Header ("Equipment")]
 	[SerializeField] private GameObject m_EquipRoot;
 	[SerializeField] private InventoryItem[] m_InventoryItems;
+	[SerializeField] private GameObject m_MuzzleFX;
 
-	private int m_Health = 100;
+	[Header ("Combat")]
+	[SerializeField] private float m_FireRate = 0.75f;
+	[SerializeField] private int m_GunDamage = 50;
+	[SerializeField] private float m_MeleeRate = 1f;
+	[SerializeField] private float m_MeleeRange = 2f;
+	[SerializeField] private int m_MeleeDamage = 50;
+
+	[Header ("Audio")]
+	[SerializeField] private AudioSource m_AudioSource;
+	[SerializeField] private AudioClip m_WalkClip;
+	[SerializeField] private AudioClip m_FireClip;
+	[SerializeField] private AudioClip m_MeleeClip;
 
 	private Vector3 m_Velocity;
 	private Quaternion m_Rotation;
 	private CollisionFlags m_LastCollision;
 
+	private float m_LastStep = float.MinValue;
+
+	private int m_Health = 100;
+	private int m_Ammo = 50;
+
 	private bool m_IsAiming = false;
+	private float m_LastShoot = float.MinValue;
+	private float m_LastMelee = float.MinValue;
 
 	public CharacterController CharacterController => m_CharacterController;
 	public Animator Animator => m_Animator;
@@ -82,12 +101,20 @@ public class PlayerController : MonoBehaviour
 			m_Velocity.x = _Movement.x;
 			m_Velocity.z = _Movement.z;
 
-			if (_Movement.sqrMagnitude > 0.01f)
+			float _CurrentSpeed = _Movement.magnitude;
+			if (_CurrentSpeed > 0.02f)
 			{
 				m_Rotation = Quaternion.LookRotation (_Movement);
+
+				if (IsGrounded && (Time.time - m_LastStep) > Mathf.Lerp (0.4f, 0.8f, 1f - Mathf.Clamp01 (_CurrentSpeed / m_MovementSpeed)))
+				{
+					m_LastStep = Time.time;
+					m_AudioSource.PlayOneShot (m_WalkClip);
+				}
+
 			}
 
-			if (m_CharacterController.isGrounded)
+			if (IsGrounded)
 			{
 				if (Input.GetButtonDown ("Jump"))
 				{
@@ -95,7 +122,7 @@ public class PlayerController : MonoBehaviour
 				}
 			}
 
-			m_Animator.SetFloat ("Speed", Mathf.Clamp01 (_Movement.magnitude / m_MovementSpeed));
+			m_Animator.SetFloat ("Speed", Mathf.Clamp01 (_CurrentSpeed / m_MovementSpeed));
 		}
 
 		m_Crosshair.transform.localPosition = new Vector3 (0f, _CrosshairDist * m_MaxCrosshairDistance, 0f);
@@ -113,27 +140,64 @@ public class PlayerController : MonoBehaviour
 
 		if (Input.GetButton ("Fire1") || Input.GetAxis ("Fire1") > 0.4f)
 		{
-			UseItem ();
+			Attack ();
 		}
 	}
 
-	private void UseItem ()
+	private void Attack ()
 	{
-		m_Animator.ResetTrigger ("Shoot");
-		m_Animator.SetTrigger ("Shoot");
-
 		Vector3 _AimDir = m_Rotation * Vector3.forward;
-		if (Physics.Raycast (transform.position, _AimDir, out RaycastHit _Hit, 100f))
+		if (IsAiming && m_Ammo > 0)
 		{
-			if (_Hit.collider.TryGetComponent (out Zombie _Zombie))
+			if ((Time.time - m_LastShoot) < m_FireRate)
 			{
-				_Zombie.Damage (_AimDir, 50);
+				return;
 			}
+
+			m_Animator.SetTrigger ("Shoot");
+			m_AudioSource.PlayOneShot (m_FireClip);
+			m_MuzzleFX.SetActive (true);
+
+			if (Physics.Raycast (transform.position, _AimDir, out RaycastHit _Hit, 100f))
+			{
+				if (_Hit.collider.TryGetComponent (out Zombie _Zombie))
+				{
+					_Zombie.Damage (_AimDir, m_GunDamage);
+				}
+			}
+
+			m_LastShoot = Time.time;
+			m_Ammo--;
+		}
+		else
+		{
+			if ((Time.time - m_LastMelee) < m_MeleeRate)
+			{
+				return;
+			}
+
+			m_Animator.SetTrigger ("MeleeAttack");
+			m_AudioSource.PlayOneShot (m_MeleeClip);
+
+			Collider[] _HitColliders = Physics.OverlapSphere (transform.position + _AimDir * m_MeleeRange * 0.5f, m_MeleeRange * 0.5f);
+			if (_HitColliders != null && _HitColliders.Length > 0)
+			{
+				foreach (Collider _Hit in _HitColliders)
+				{
+					if (_Hit.TryGetComponent (out Zombie _Zombie))
+					{
+						_Zombie.Damage (_AimDir, m_MeleeDamage);
+					}
+				}
+			}
+
+			m_LastMelee = Time.time;
 		}
 	}
 
-	public void GiveItem (ItemDefinition a_Item)
+	public void Damage (int a_Damage)
 	{
-
+		m_Health -= a_Damage;
+		GameManager.Instance.HUD.UpdatePlayerHealth (Mathf.Max (0, m_Health));
 	}
 }

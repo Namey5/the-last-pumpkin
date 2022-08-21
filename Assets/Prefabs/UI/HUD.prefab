@@ -253,7 +253,7 @@ GameObject:
   - component: {fileID: 362766943910846666}
   - component: {fileID: 362766943910846667}
   m_Layer: 5
-  m_Name: PumpkinDefences
+  m_Name: FarmDefences
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1812,7 +1812,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Pumpkin Defences
+  m_text: Farm Defences
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: e939896431877df4792746eced6ae29e, type: 2}
   m_sharedMaterial: {fileID: -226449614549137128, guid: e939896431877df4792746eced6ae29e, type: 2}

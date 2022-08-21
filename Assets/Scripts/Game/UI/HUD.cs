@@ -22,7 +22,7 @@ public class HUD : MonoBehaviour
 		UpdateKillCount (0);
 		UpdateAmmoCount (0);
 		UpdatePlayerHealth (100);
-		UpdatePumpkinDefences (100);
+		UpdateFarmDefences (100);
 
 		for (int i = 0; i < m_InventorySlots.Length; i++)
 		{
@@ -46,9 +46,9 @@ public class HUD : MonoBehaviour
 		m_HealthBar.rectTransform.anchorMax = new Vector2 (1f, Mathf.Clamp01 (a_Health / 100f));
 	}
 
-	public void UpdatePumpkinDefences (int a_Defences)
+	public void UpdateFarmDefences (int a_Defences)
 	{
-		m_HealthBar.rectTransform.anchorMax = new Vector2 (Mathf.Clamp01 (a_Defences / 100f), 1f);
+		m_DefencesBar.rectTransform.anchorMax = new Vector2 (Mathf.Clamp01 (a_Defences / 100f), 1f);
 	}
 
 	public void SelectInventorySlot (int a_Slot)

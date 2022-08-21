@@ -26,7 +26,7 @@ public class ItemPickup : MonoBehaviour
 	{
 		if (a_Other.TryGetComponent (out PlayerController _Player))
 		{
-			_Player.GiveItem (m_ItemDefinition);
+			//_Player.GiveItem (m_ItemDefinition);
 			Destroy (gameObject);
 		}
 	}
